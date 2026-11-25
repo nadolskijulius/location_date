@@ -1,7 +1,7 @@
 const pages=[...document.querySelectorAll('[data-page]')],menu=document.querySelector('#menu'),menuToggle=document.querySelector('.menu-toggle');
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
-const motionEase='cubic-bezier(.22,.8,.2,1)';
-let routeAnimation;
+const motionEase='cubic-bezier(.4,0,.2,1)';
+let routeAnimation,routeSequence=0;
 const titles={home:'Rathenauplatz Kölle',essen:'Essen & Trinken',sport:'Sport & Spaß',sitzen:'Sitzen & Genießen',anreise:'Anreise',projekt:'Über das Projekt'};
 let previousFocus,closeTimer,scene=0,lastWheel=0,wheelSum=0,touchStart=null;
 const home=document.querySelector('.screen-home'),pill=document.querySelector('.topic-pill');
@@ -32,7 +32,31 @@ function sizeCanvas(){
  home.style.setProperty('--photo-h',photo.clientHeight+'px');
  home.style.setProperty('--photo-w',photo.clientWidth+'px');
 }
-function setScene(next){next=scene===0?(next<0?3:1):((next-1+3)%3)+1;if(next===scene)return;scene=next;home.classList.toggle('has-topic',scene>0);home.dataset.scene=scene;document.querySelectorAll('.scene').forEach((img,i)=>img.classList.toggle('active',i===scene));pill.setAttribute('aria-hidden',String(scene===0));pill.tabIndex=scene?0:-1;if(scene){pill.href='#'+topics[scene].page;const label=document.createElement('img');label.src='assets/'+[null,'1-imgEssenTrinken.svg','1-imgSportSpass.svg','1-imgSitzenGeniessen.svg'][scene];label.alt=topics[scene].title.replace('<br>',' ');pill.querySelector('span').replaceChildren(label);if(!reduce.matches){const label=pill.querySelector('span');label.getAnimations().forEach(a=>a.cancel());label.animate([{opacity:0,transform:'translateY(12px)',clipPath:'inset(0 0 100% 0)'},{opacity:1,transform:'translateY(0)',clipPath:'inset(0 0 0 0)'}],{duration:560,easing:motionEase});}}document.querySelector('.scene-status').textContent=scene?topics[scene].title.replace('<br>',' '):'Rathenauplatz Kölle';const photo=home.querySelector('.screen-photo');photo.href='#'+topics[scene].page;photo.setAttribute('aria-label',topics[scene].title.replace('<br>',' ')+' öffnen');}
+const topicArtwork=[null,'1-imgEssenTrinken.svg','1-imgSportSpass.svg','1-imgSitzenGeniessen.svg'];
+topicArtwork.filter(Boolean).forEach(src=>{const img=new Image();img.src='assets/'+src;});
+function transitionTopicLabel(next,direction){
+ const holder=pill.querySelector('span'),old=[...holder.children];
+ const label=document.createElement('img');label.src='assets/'+topicArtwork[next];label.alt=topics[next].title.replace('<br>',' ');
+ pill.setAttribute('aria-label',label.alt);label.setAttribute('aria-hidden','true');
+ holder.append(label);
+ if(reduce.matches){old.forEach(el=>el.remove());return;}
+ old.forEach(el=>{
+  const current=getComputedStyle(el),opacity=current.opacity,transform=current.transform;
+  el.getAnimations().forEach(a=>a.cancel());
+  el.animate([{opacity,transform},{opacity:0,transform:'translateY('+(-direction*14)+'px)'}],{duration:340,easing:motionEase,fill:'forwards'}).onfinish=()=>el.remove();
+ });
+ label.animate([{opacity:0,transform:'translateY('+(direction*14)+'px)'},{opacity:0,transform:'translateY('+(direction*14)+'px)',offset:.2},{opacity:1,transform:'translateY(0)'}],{duration:720,easing:motionEase});
+}
+function setScene(next){
+ const direction=next<scene?-1:1;
+ next=scene===0?(next<0?3:1):((next-1+3)%3)+1;if(next===scene)return;
+ scene=next;home.classList.add('has-topic');home.dataset.scene=scene;
+ document.querySelectorAll('.scene').forEach((img,i)=>img.classList.toggle('active',i===scene));
+ pill.setAttribute('aria-hidden','false');pill.tabIndex=0;pill.href='#'+topics[scene].page;
+ transitionTopicLabel(scene,direction);
+ document.querySelector('.scene-status').textContent=topics[scene].title.replace('<br>',' ');
+ const photo=home.querySelector('.screen-photo');photo.href=pill.href;photo.setAttribute('aria-label',topics[scene].title.replace('<br>',' ')+' öffnen');
+}
 function onHome(){return document.body.classList.contains('is-home')&&!menu.open;}
 home.addEventListener('wheel',e=>{if(!onHome()||e.ctrlKey)return;e.preventDefault();const now=performance.now(),gap=now-lastWheel;lastWheel=now;if(gap>180)wheelSum=0;else if(home.dataset.wheelLocked==='true')return;home.dataset.wheelLocked='false';wheelSum+=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?innerHeight:1);if(Math.abs(wheelSum)>42){setScene(scene+Math.sign(wheelSum));wheelSum=0;home.dataset.wheelLocked='true';}},{passive:false});
 home.addEventListener('touchstart',e=>{if(e.touches.length===1)touchStart={x:e.touches[0].clientX,y:e.touches[0].clientY};},{passive:true});
@@ -82,8 +106,26 @@ pages.filter(page=>page.dataset.page!=='home').forEach(page=>{
  wideTopics.addEventListener('change',arrangeCards);
  arrangeCards();
 });
-document.querySelectorAll('.topic-card').forEach(d=>{const s=d.querySelector('summary'),panel=d.querySelector('.card-panel');let animation;s.addEventListener('click',e=>{e.preventDefault();const from=panel.getBoundingClientRect().height;const opacity=getComputedStyle(panel).opacity;animation?.cancel();const opening=!d.classList.contains('expanded');d.open=true;d.classList.toggle('expanded',opening);s.setAttribute('aria-expanded',String(opening));const to=opening?panel.firstElementChild.getBoundingClientRect().height:0;if(reduce.matches){d.open=opening;return;}animation=panel.animate([{height:from+'px',opacity:d.open&&from>0?opacity:0},{height:to+'px',opacity:opening?1:0}],{duration:520,easing:motionEase});animation.onfinish=()=>{d.open=opening;animation=null;};});});
-function route(){const departing=pages.find(p=>!p.hidden);let[page,anchor]=location.hash.slice(1).split('/');if(!Object.hasOwn(titles,page))page='home';closeMenu();pages.forEach(p=>p.hidden=p.dataset.page!==page);document.body.classList.toggle('is-home',page==='home');document.title=titles[page]+(page==='home'?'':' · Rathenauplatz Kölle');document.querySelectorAll('.menu-item').forEach(a=>a.toggleAttribute('aria-current',a.hash==='#'+page));sizeCanvas();const entering=pages.find(p=>p.dataset.page===page);routeAnimation?.cancel();if(departing!==entering&&!reduce.matches){routeAnimation=entering.animate([{opacity:0,transform:'translateY(18px)'},{opacity:1,transform:'translateY(0)'}],{duration:640,easing:motionEase});}requestAnimationFrame(()=>{window.scrollTo({top:0,behavior:'instant'});const target=anchor&&document.getElementById(anchor);if(target&&target.closest('[data-page]')?.dataset.page===page){if(target.matches('details')){target.open=true;target.classList.add('expanded');target.querySelector('summary').setAttribute('aria-expanded','true');}target.scrollIntoView({behavior:'smooth'});}else if(page!=='home'){const h=document.querySelector('[data-page="'+page+'"] h1');h.tabIndex=-1;h.focus({preventScroll:true});}});}
+document.querySelectorAll('.topic-card').forEach(d=>{
+ const summary=d.querySelector('summary'),panel=d.querySelector('.card-panel'),inner=panel.firstElementChild;
+ const arrow=document.createElement('img');arrow.className='disclosure-arrow';arrow.src='assets/chevron.svg';arrow.alt='';summary.append(arrow);
+ summary.setAttribute('aria-expanded',String(d.open));
+ let heightAnimation,textAnimation;
+ summary.addEventListener('click',e=>{
+  e.preventDefault();
+  const wasOpen=d.open,from=wasOpen?panel.getBoundingClientRect().height:0;
+  const style=getComputedStyle(inner),opacity=wasOpen?style.opacity:'0',transform=wasOpen?style.transform:'translateY(-8px)';
+  heightAnimation?.cancel();textAnimation?.cancel();
+  const opening=!d.classList.contains('expanded');
+  d.open=true;d.classList.toggle('expanded',opening);summary.setAttribute('aria-expanded',String(opening));
+  if(reduce.matches){d.open=opening;return;}
+  const to=opening?inner.getBoundingClientRect().height:0;
+  heightAnimation=panel.animate([{height:from+'px'},{height:to+'px'}],{duration:700,easing:motionEase});
+  textAnimation=inner.animate([{opacity,transform},{opacity:opening?1:0,transform:opening?'translateY(0)':'translateY(-8px)'}],{duration:opening?620:380,easing:motionEase,fill:'forwards'});
+  heightAnimation.onfinish=()=>{d.open=opening;heightAnimation=null;textAnimation?.cancel();textAnimation=null;};
+ });
+});
+async function route(){const sequence=++routeSequence;const departing=pages.find(p=>!p.hidden);let[page,anchor]=location.hash.slice(1).split('/');if(!Object.hasOwn(titles,page))page='home';closeMenu();if(departing&&departing.dataset.page!==page&&!reduce.matches){const opacity=getComputedStyle(departing).opacity;routeAnimation?.cancel();routeAnimation=departing.animate([{opacity},{opacity:0}],{duration:240,easing:motionEase,fill:'forwards'});await routeAnimation.finished.catch(()=>{});if(sequence!==routeSequence)return;}pages.forEach(p=>p.hidden=p.dataset.page!==page);document.body.classList.toggle('is-home',page==='home');document.title=titles[page]+(page==='home'?'':' · Rathenauplatz Kölle');document.querySelectorAll('.menu-item').forEach(a=>a.toggleAttribute('aria-current',a.hash==='#'+page));sizeCanvas();const entering=pages.find(p=>p.dataset.page===page);routeAnimation?.cancel();if(departing!==entering&&!reduce.matches){routeAnimation=entering.animate([{opacity:0,transform:'translateY(18px)'},{opacity:1,transform:'translateY(0)'}],{duration:640,easing:motionEase});}requestAnimationFrame(()=>{window.scrollTo({top:0,behavior:'instant'});const target=anchor&&document.getElementById(anchor);if(target&&target.closest('[data-page]')?.dataset.page===page){if(target.matches('details')){target.open=true;target.classList.add('expanded');target.querySelector('summary').setAttribute('aria-expanded','true');}target.scrollIntoView({behavior:'smooth'});}else if(page!=='home'){const h=document.querySelector('[data-page="'+page+'"] h1');h.tabIndex=-1;h.focus({preventScroll:true});}});}
 window.addEventListener('resize',sizeCanvas);window.addEventListener('hashchange',route);route();
 
 // Add supplied photographs here as {src, alt} entries.

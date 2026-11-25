@@ -187,3 +187,15 @@ body:not(.is-home) .menu-close{top:22px}
 .action-arrow{transition:translate .44s var(--motion-ease)}
 .gallery-controls button:active,.scene-controls button:active{transform:scale(.94)}
 @media(prefers-reduced-motion:reduce){.card-inner,.gallery-slide{transform:none!important}.topic-pill,.card-inner,.scene,.gallery-slide,.action-arrow{transition:none!important}}
+
+/* Keep outgoing lettering alive during the incoming label's transition. */
+.topic-pill>span{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);isolation:isolate}
+.topic-pill>span>img{grid-area:1/1;min-width:0;min-height:0}
+.topic-card summary:after{display:none!important}
+.disclosure-arrow{position:absolute;right:28px;top:calc(50% - 12px);width:24px;height:24px;transform:rotate(0deg);transition:transform .7s cubic-bezier(.4,0,.2,1);transform-origin:50% 50%}
+.topic-card.expanded .disclosure-arrow{transform:rotate(180deg)}
+.card-inner{transition:none;opacity:1;transform:none}
+.topic-card:not(.expanded) .card-inner{opacity:0;transform:translateY(-8px)}
+.scene{transition:opacity .85s cubic-bezier(.4,0,.2,1),transform 1.1s cubic-bezier(.4,0,.2,1)}
+@media(min-width:900px){.disclosure-arrow{right:30px}}
+@media(prefers-reduced-motion:reduce){.disclosure-arrow,.scene{transition:none!important}}
