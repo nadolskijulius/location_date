@@ -199,3 +199,9 @@ body:not(.is-home) .menu-close{top:22px}
 .scene{transition:opacity .85s cubic-bezier(.4,0,.2,1),transform 1.1s cubic-bezier(.4,0,.2,1)}
 @media(min-width:900px){.disclosure-arrow{right:30px}}
 @media(prefers-reduced-motion:reduce){.disclosure-arrow,.scene{transition:none!important}}
+
+/* Preserve full compositions and harmonize the supplied photographs in-browser. */
+.gallery-slide{object-fit:contain}
+.gallery-stage{touch-action:pan-y pinch-zoom}
+.scene[data-tone="summer"],.gallery-slide[data-tone="summer"]{filter:saturate(.88) contrast(.96) brightness(1.04)}
+.scene[data-tone="autumn"],.gallery-slide[data-tone="autumn"]{filter:saturate(.88) contrast(.94) brightness(1.08)}
