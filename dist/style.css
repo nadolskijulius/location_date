@@ -119,7 +119,8 @@ body:not(.is-home) .menu-toggle{top:22px}
 .page-heading h1[tabindex="-1"]:focus{outline:none}
 
 /* Image and lettering share the lower edge, with breathing room below. */
-.screen-home .screen-photo{bottom:var(--image-bottom)}
+.screen-home .screen-photo{bottom:0}
+@media(min-width:900px) and (min-height:501px){.screen-home .screen-photo{bottom:2.6%}}
 .topic-card{background:#FFFCE0;color:#000}
 .topic-card .card-inner,.topic-card .card-inner p,.topic-card h3,.topic-card a,.topic-card .source{color:#000}
 .topic-card summary{color:#000;font-size:clamp(21px,1.8vw,27px);font-weight:750;line-height:1.25;min-height:92px}
@@ -144,3 +145,18 @@ body:not(.is-home) .menu-close{top:22px}
 @media(prefers-reduced-motion:reduce){.close-cross,.menu-close .close-label{transition:none}}
 
 .screen-home .scene-controls{bottom:calc(var(--image-bottom) + 18px)}
+
+/* Optical alignment follows the straight letter edges, allowing curved overshoot. */
+.screen-platz{left:calc(var(--image-left) + var(--pwidth) - var(--p-optical-offset))}
+.menu-close,.menu-close:focus,.menu-close:focus-visible{border:0;outline:none;box-shadow:none;background:transparent}
+.page-gallery{position:relative;border-radius:28px;background:#FFFCE0;overflow:hidden;isolation:isolate}
+.gallery-stage{position:relative;aspect-ratio:16/9;min-height:220px}
+.gallery-stage .gallery-empty{position:absolute;inset:0;display:grid;place-items:center;margin:0;color:#000;font-size:16px}
+.gallery-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s ease}
+.gallery-slide.active{opacity:1}
+.gallery-controls{position:absolute;inset:auto 20px 20px;display:flex;justify-content:space-between;pointer-events:none}
+.gallery-controls button{pointer-events:auto;width:44px;height:44px;display:grid;place-items:center;background:#FFFCE0;border-radius:50%}
+.gallery-controls img{width:26px;height:26px}
+.gallery-controls button:disabled{visibility:hidden}
+@media(max-width:599px){.gallery-stage{aspect-ratio:4/3}}
+@media(prefers-reduced-motion:reduce){.gallery-slide{transition:none}}

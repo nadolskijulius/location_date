@@ -21,6 +21,7 @@ function sizeCanvas(){
  home.style.setProperty('--pscale',scale);
  home.style.setProperty('--rwidth',rwidth+'px');
  home.style.setProperty('--pwidth',pwidth+'px');
+ home.style.setProperty('--p-optical-offset',(2.537*scale)+'px');
  home.style.setProperty('--word-left',left+'px');
  home.style.setProperty('--word-top',(bottom-1096*scale)+'px');
  home.style.setProperty('--platz-top',(bottom-558.398*scale)+'px');
@@ -76,10 +77,18 @@ document.querySelectorAll('.topic-card').forEach(d=>{const s=d.querySelector('su
 function route(){let[page,anchor]=location.hash.slice(1).split('/');if(!Object.hasOwn(titles,page))page='home';closeMenu();pages.forEach(p=>p.hidden=p.dataset.page!==page);document.body.classList.toggle('is-home',page==='home');document.title=titles[page]+(page==='home'?'':' · Rathenauplatz Kölle');document.querySelectorAll('.menu-item').forEach(a=>a.toggleAttribute('aria-current',a.hash==='#'+page));sizeCanvas();requestAnimationFrame(()=>{window.scrollTo({top:0,behavior:'instant'});const target=anchor&&document.getElementById(anchor);if(target&&target.closest('[data-page]')?.dataset.page===page){if(target.matches('details')){target.open=true;target.classList.add('expanded');target.querySelector('summary').setAttribute('aria-expanded','true');}target.scrollIntoView({behavior:'smooth'});}else if(page!=='home'){const h=document.querySelector('[data-page="'+page+'"] h1');h.tabIndex=-1;h.focus({preventScroll:true});}});}
 window.addEventListener('resize',sizeCanvas);window.addEventListener('hashchange',route);route();
 
-// Empty galleries are ready for the supplied photographs.
+// Add supplied photographs here as {src, alt} entries.
+const galleryImages={essen:[],sport:[],sitzen:[],anreise:[],projekt:[]};
 pages.filter(p=>p.dataset.page!=='home').forEach(p=>{
- const gallery=document.createElement('section');gallery.className='page-gallery';gallery.setAttribute('aria-label','Bildgalerie');
- gallery.innerHTML='<div class="gallery-slots" aria-hidden="true"><div></div><div></div><div></div></div><p>Bilder folgen</p>';
+ const photos=galleryImages[p.dataset.page],gallery=document.createElement('section');
+ gallery.className='page-gallery';gallery.setAttribute('aria-label','Bildgalerie');
+ gallery.innerHTML='<div class="gallery-stage"><p class="gallery-empty">Bilder folgen</p></div><div class="gallery-controls"><button type="button" aria-label="Vorheriges Bild"><img src="assets/arrow-back.svg" alt=""></button><button type="button" aria-label="Nächstes Bild"><img src="assets/arrow-forward.svg" alt=""></button></div>';
+ const stage=gallery.querySelector('.gallery-stage');let current=0;
+ const slides=photos.map((photo,i)=>{const img=document.createElement('img');img.src=photo.src;img.alt=photo.alt;img.loading='lazy';img.decoding='async';img.className='gallery-slide';img.classList.toggle('active',i===0);stage.append(img);return img;});
+ if(photos.length)gallery.querySelector('.gallery-empty').remove();
+ const buttons=gallery.querySelectorAll('button');buttons.forEach(b=>b.disabled=photos.length<2);
+ function show(delta){current=(current+delta+slides.length)%slides.length;slides.forEach((img,i)=>{img.classList.toggle('active',i===current);img.setAttribute('aria-hidden',String(i!==current));});}
+ buttons[0].addEventListener('click',()=>show(-1));buttons[1].addEventListener('click',()=>show(1));
  p.querySelector('.content').append(gallery);
 });
 // Direction and shape distinguish navigation, external links and disclosure.
