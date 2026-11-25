@@ -200,8 +200,13 @@ body:not(.is-home) .menu-close{top:22px}
 @media(min-width:900px){.disclosure-arrow{right:30px}}
 @media(prefers-reduced-motion:reduce){.disclosure-arrow,.scene{transition:none!important}}
 
-/* Preserve full compositions and harmonize the supplied photographs in-browser. */
-.gallery-slide{object-fit:contain}
+/* Harmonize the supplied photographs in-browser. */
+.gallery-stage{overflow:hidden}
+.gallery-slide{object-fit:cover;object-position:var(--focus-desktop,50% 50%);transform:none;z-index:0;transition:opacity .8s cubic-bezier(.4,0,.2,1)}
+.gallery-slide.previous{opacity:1;z-index:1;transform:none}
+.gallery-slide.active{z-index:2;transform:none}
+.gallery-controls{z-index:3}
+@media(max-width:599px){.gallery-slide{object-position:var(--focus-mobile,50% 50%)}}
 .gallery-stage{touch-action:pan-y pinch-zoom}
 .scene[data-tone="summer"],.gallery-slide[data-tone="summer"]{filter:saturate(.88) contrast(.96) brightness(1.04)}
 .scene[data-tone="autumn"],.gallery-slide[data-tone="autumn"]{filter:saturate(.88) contrast(.94) brightness(1.08)}
