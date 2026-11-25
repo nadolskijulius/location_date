@@ -160,3 +160,12 @@ body:not(.is-home) .menu-close{top:22px}
 .gallery-controls button:disabled{visibility:hidden}
 @media(max-width:599px){.gallery-stage{aspect-ratio:4/3}}
 @media(prefers-reduced-motion:reduce){.gallery-slide{transition:none}}
+
+/* Reveal the menu from the exact centre of its trigger. */
+#menu{background:transparent;opacity:1;transition:none;overflow:hidden}
+#menu::backdrop{background:transparent}
+#menu .menu-frame{width:100%;max-width:none;margin:0;opacity:1;transform:none;clip-path:circle(var(--menu-start,23px) at var(--menu-x,95vw) var(--menu-y,45px));transition:clip-path .64s cubic-bezier(.22,.8,.2,1)}
+#menu.is-visible .menu-frame{clip-path:circle(var(--menu-radius,150vmax) at var(--menu-x,95vw) var(--menu-y,45px));transform:none}
+#menu .menu-place,#menu .menu-map,#menu .menu-postcode,#menu .menu-canvas nav{opacity:0;transform:translateY(8px);transition:opacity .2s ease,transform .32s ease}
+#menu.is-visible .menu-place,#menu.is-visible .menu-map,#menu.is-visible .menu-postcode,#menu.is-visible .menu-canvas nav{opacity:1;transform:none;transition-delay:.15s}
+@media(prefers-reduced-motion:reduce){#menu .menu-frame,#menu .menu-place,#menu .menu-map,#menu .menu-postcode,#menu .menu-canvas nav{transition:none!important}}

@@ -38,8 +38,15 @@ home.addEventListener('touchmove',e=>{if(onHome()&&e.touches.length===1)e.preven
 home.addEventListener('touchend',e=>{if(!touchStart||!onHome())return;const dy=touchStart.y-e.changedTouches[0].clientY,dx=touchStart.x-e.changedTouches[0].clientX;if(Math.abs(dy)>35&&Math.abs(dy)>Math.abs(dx)){e.preventDefault();setScene(scene+Math.sign(dy));}touchStart=null;});
 document.addEventListener('keydown',e=>{if(!onHome()||e.target.closest('button,a'))return;if(['ArrowDown','PageDown',' ','ArrowUp','PageUp','Home','End'].includes(e.key)){e.preventDefault();setScene(e.key==='Home'?1:e.key==='End'?3:scene+(['ArrowUp','PageUp'].includes(e.key)?-1:1));}});
 document.querySelector('.scene-next').addEventListener('click',()=>setScene(scene+1));document.querySelector('.scene-prev').addEventListener('click',()=>setScene(scene-1));
-function closeMenu(){if(!menu.open)return;menu.classList.remove('is-visible');clearTimeout(closeTimer);closeTimer=setTimeout(()=>menu.close(),reduce.matches?0:520);}
-menuToggle.addEventListener('click',()=>{previousFocus=document.activeElement;clearTimeout(closeTimer);menu.showModal();document.body.classList.add('menu-open');menuToggle.setAttribute('aria-expanded','true');requestAnimationFrame(()=>requestAnimationFrame(()=>menu.classList.add('is-visible')));});
+function positionMenuReveal(){
+ const r=menuToggle.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+ const radius=Math.hypot(Math.max(x,innerWidth-x),Math.max(y,innerHeight-y));
+ menu.style.setProperty('--menu-x',x+'px');menu.style.setProperty('--menu-y',y+'px');
+ menu.style.setProperty('--menu-start',(r.width/2)+'px');menu.style.setProperty('--menu-radius',(radius+2)+'px');
+}
+window.addEventListener('resize',()=>{if(menu.open)positionMenuReveal();});
+function closeMenu(){if(!menu.open)return;menu.classList.remove('is-visible');clearTimeout(closeTimer);closeTimer=setTimeout(()=>menu.close(),reduce.matches?0:640);}
+menuToggle.addEventListener('click',()=>{previousFocus=document.activeElement;clearTimeout(closeTimer);positionMenuReveal();menu.showModal();document.body.classList.add('menu-open');menuToggle.setAttribute('aria-expanded','true');requestAnimationFrame(()=>requestAnimationFrame(()=>menu.classList.add('is-visible')));});
 menu.querySelector('.menu-close').addEventListener('click',closeMenu);menu.addEventListener('cancel',e=>{e.preventDefault();closeMenu();});menu.addEventListener('close',()=>{document.body.classList.remove('menu-open');menuToggle.setAttribute('aria-expanded','false');previousFocus?.focus({preventScroll:true});});menu.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',closeMenu));
 // Keep existing, sourced content while turning each subtopic into a disclosure card.
 function card(title,nodes,id){const d=document.createElement('details');d.className='topic-card';if(id)d.id=id;const s=document.createElement('summary');s.textContent=title;const panel=document.createElement('div');panel.className='card-panel';const inner=document.createElement('div');inner.className='card-inner';nodes.forEach(n=>inner.append(n));panel.append(inner);d.append(s,panel);return d;}
