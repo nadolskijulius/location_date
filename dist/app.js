@@ -10,6 +10,7 @@ function sizeCanvas(){
  if(!height||!width)return;
  // Both Figma outlines share a baseline with the breathing room of the reference.
  const bottom=height-Math.max(20,height*.052);
+ home.style.setProperty('--image-bottom',(height-bottom)+'px');
  const scale=Math.min((bottom-height*.12)/1096,width*.28/153.393);
  const rwidth=153.393*scale,pwidth=157.313*scale;
  const landscape=height<=500&&width>=600;
@@ -36,7 +37,7 @@ home.addEventListener('touchmove',e=>{if(onHome()&&e.touches.length===1)e.preven
 home.addEventListener('touchend',e=>{if(!touchStart||!onHome())return;const dy=touchStart.y-e.changedTouches[0].clientY,dx=touchStart.x-e.changedTouches[0].clientX;if(Math.abs(dy)>35&&Math.abs(dy)>Math.abs(dx)){e.preventDefault();setScene(scene+Math.sign(dy));}touchStart=null;});
 document.addEventListener('keydown',e=>{if(!onHome()||e.target.closest('button,a'))return;if(['ArrowDown','PageDown',' ','ArrowUp','PageUp','Home','End'].includes(e.key)){e.preventDefault();setScene(e.key==='Home'?1:e.key==='End'?3:scene+(['ArrowUp','PageUp'].includes(e.key)?-1:1));}});
 document.querySelector('.scene-next').addEventListener('click',()=>setScene(scene+1));document.querySelector('.scene-prev').addEventListener('click',()=>setScene(scene-1));
-function closeMenu(){if(!menu.open)return;menu.classList.remove('is-visible');clearTimeout(closeTimer);closeTimer=setTimeout(()=>menu.close(),reduce.matches?0:420);}
+function closeMenu(){if(!menu.open)return;menu.classList.remove('is-visible');clearTimeout(closeTimer);closeTimer=setTimeout(()=>menu.close(),reduce.matches?0:520);}
 menuToggle.addEventListener('click',()=>{previousFocus=document.activeElement;clearTimeout(closeTimer);menu.showModal();document.body.classList.add('menu-open');menuToggle.setAttribute('aria-expanded','true');requestAnimationFrame(()=>requestAnimationFrame(()=>menu.classList.add('is-visible')));});
 menu.querySelector('.menu-close').addEventListener('click',closeMenu);menu.addEventListener('cancel',e=>{e.preventDefault();closeMenu();});menu.addEventListener('close',()=>{document.body.classList.remove('menu-open');menuToggle.setAttribute('aria-expanded','false');previousFocus?.focus({preventScroll:true});});menu.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',closeMenu));
 // Keep existing, sourced content while turning each subtopic into a disclosure card.
@@ -74,3 +75,12 @@ pages.filter(page=>page.dataset.page!=='home').forEach(page=>{
 document.querySelectorAll('.topic-card').forEach(d=>{const s=d.querySelector('summary'),panel=d.querySelector('.card-panel');let animation;s.addEventListener('click',e=>{e.preventDefault();const from=panel.getBoundingClientRect().height;const opacity=getComputedStyle(panel).opacity;animation?.cancel();const opening=!d.classList.contains('expanded');d.open=true;d.classList.toggle('expanded',opening);s.setAttribute('aria-expanded',String(opening));const to=opening?panel.firstElementChild.getBoundingClientRect().height:0;if(reduce.matches){d.open=opening;return;}animation=panel.animate([{height:from+'px',opacity:d.open&&from>0?opacity:0},{height:to+'px',opacity:opening?1:0}],{duration:360,easing:'cubic-bezier(.2,.7,.2,1)'});animation.onfinish=()=>{d.open=opening;animation=null;};});});
 function route(){let[page,anchor]=location.hash.slice(1).split('/');if(!Object.hasOwn(titles,page))page='home';closeMenu();pages.forEach(p=>p.hidden=p.dataset.page!==page);document.body.classList.toggle('is-home',page==='home');document.title=titles[page]+(page==='home'?'':' · Rathenauplatz Kölle');document.querySelectorAll('.menu-item').forEach(a=>a.toggleAttribute('aria-current',a.hash==='#'+page));sizeCanvas();requestAnimationFrame(()=>{window.scrollTo({top:0,behavior:'instant'});const target=anchor&&document.getElementById(anchor);if(target&&target.closest('[data-page]')?.dataset.page===page){if(target.matches('details')){target.open=true;target.classList.add('expanded');target.querySelector('summary').setAttribute('aria-expanded','true');}target.scrollIntoView({behavior:'smooth'});}else if(page!=='home'){const h=document.querySelector('[data-page="'+page+'"] h1');h.tabIndex=-1;h.focus({preventScroll:true});}});}
 window.addEventListener('resize',sizeCanvas);window.addEventListener('hashchange',route);route();
+
+// Empty galleries are ready for the supplied photographs.
+pages.filter(p=>p.dataset.page!=='home').forEach(p=>{
+ const gallery=document.createElement('section');gallery.className='page-gallery';gallery.setAttribute('aria-label','Bildgalerie');
+ gallery.innerHTML='<div class="gallery-slots" aria-hidden="true"><div></div><div></div><div></div></div><p>Bilder folgen</p>';
+ p.querySelector('.content').append(gallery);
+});
+// Direction and shape distinguish navigation, external links and disclosure.
+document.querySelectorAll('a .inline-arrow').forEach(img=>{const a=img.closest('a');img.src=a.classList.contains('back-link')?'assets/arrow-back.svg':a.target==='_blank'?'assets/arrow-external.svg':'assets/arrow-forward.svg';img.classList.add('action-arrow');});

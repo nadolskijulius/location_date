@@ -117,3 +117,30 @@ html:has(body.is-home),body.is-home{height:100%;overflow:hidden;overscroll-behav
 body:not(.is-home) .site-header{height:90px;background:#fff}
 body:not(.is-home) .menu-toggle{top:22px}
 .page-heading h1[tabindex="-1"]:focus{outline:none}
+
+/* Image and lettering share the lower edge, with breathing room below. */
+.screen-home .screen-photo{bottom:var(--image-bottom)}
+.topic-card{background:#FFFCE0;color:#000}
+.topic-card .card-inner,.topic-card .card-inner p,.topic-card h3,.topic-card a,.topic-card .source{color:#000}
+.topic-card summary{color:#000;font-size:clamp(21px,1.8vw,27px);font-weight:750;line-height:1.25;min-height:92px}
+.topic-card summary:after{background-image:url('assets/chevron.svg');width:24px;height:24px;top:calc(50% - 12px)}
+.action-arrow{width:26px;height:26px;transform:none!important;margin:0;flex-shrink:0}
+.page-gallery{grid-column:1/-1;min-width:0;margin-top:36px}
+.gallery-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(12px,2vw,28px)}
+.gallery-slots>div{aspect-ratio:4/3;background:#FFFCE0;border-radius:24px;border:1px solid #eee8bc}
+.page-gallery p{margin:14px 0 0;font-size:14px;color:#000}
+@media(max-width:599px){.gallery-slots{grid-template-columns:1fr}.gallery-slots>div{aspect-ratio:3/2}.page-gallery{margin-top:28px}}
+.menu-frame{transition:opacity .44s ease,transform .52s cubic-bezier(.22,1,.36,1);transform:translateY(-18px) scale(.985);transform-origin:top right}
+dialog{transition:opacity .44s ease}
+.menu-close{width:46px;height:46px;right:clamp(20px,6vw,60px);top:max(8px,calc(12dvh - 70px));border-radius:50%;background:var(--yellow)}
+.menu-close .close-label{position:absolute;inset:0;width:46px;height:46px;transition:opacity .3s,transform .5s}
+.close-cross{position:absolute;inset:3px;width:40px;height:40px;opacity:0;transform:rotate(-80deg) scale(.6);transition:opacity .35s,transform .52s cubic-bezier(.22,1,.36,1)}
+.close-cross path{fill:none;stroke:var(--green);stroke-width:3;stroke-linecap:round}
+.is-visible .close-label{opacity:0;transform:rotate(60deg) scale(.6)}
+.is-visible .close-cross{opacity:1;transform:rotate(0) scale(1)}
+body:not(.is-home) .menu-close{top:22px}
+@media(min-width:900px) and (min-height:501px){.menu-close{right:clamp(32px,4vw,84px)}}
+@media(max-height:500px) and (min-width:600px){.menu-close{top:10px}}
+@media(prefers-reduced-motion:reduce){.close-cross,.menu-close .close-label{transition:none}}
+
+.screen-home .scene-controls{bottom:calc(var(--image-bottom) + 18px)}
