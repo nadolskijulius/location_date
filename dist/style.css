@@ -210,3 +210,14 @@ body:not(.is-home) .menu-close{top:22px}
 .gallery-stage{touch-action:pan-y pinch-zoom}
 .scene[data-tone="summer"],.gallery-slide[data-tone="summer"]{filter:saturate(.88) contrast(.96) brightness(1.04)}
 .scene[data-tone="autumn"],.gallery-slide[data-tone="autumn"]{filter:saturate(.88) contrast(.94) brightness(1.08)}
+
+/* Do not paint unscaled SVG lettering before its first measured layout. */
+.js .screen-home:not(.layout-ready){visibility:hidden}
+.screen-rathenau{width:1096px;height:153.393px;max-width:none}
+.screen-platz{width:558.398px;height:157.313px;max-width:none}
+.scene:first-child,.scene:first-child.active{object-position:50% 55%}
+@media(min-width:900px) and (min-height:501px){.scene:first-child,.scene:first-child.active{object-position:50% 62%}}
+.site-footer{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:28px 48px}
+.site-footer nav{display:grid;grid-template-columns:repeat(2,minmax(100px,auto));gap:12px 40px}
+.site-footer nav a{justify-content:space-between;gap:20px}
+@media(max-width:599px){.site-footer{grid-template-columns:1fr;gap:24px}.site-footer nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;width:100%}}
