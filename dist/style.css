@@ -169,3 +169,21 @@ body:not(.is-home) .menu-close{top:22px}
 #menu .menu-place,#menu .menu-map,#menu .menu-postcode,#menu .menu-canvas nav{opacity:0;transform:translateY(8px);transition:opacity .2s ease,transform .32s ease}
 #menu.is-visible .menu-place,#menu.is-visible .menu-map,#menu.is-visible .menu-postcode,#menu.is-visible .menu-canvas nav{opacity:1;transform:none;transition-delay:.15s}
 @media(prefers-reduced-motion:reduce){#menu .menu-frame,#menu .menu-place,#menu .menu-map,#menu .menu-postcode,#menu .menu-canvas nav{transition:none!important}}
+
+/* Surfaces unfold from their own edge; content follows with shared easing. */
+:root{--motion-ease:cubic-bezier(.22,.8,.2,1);--motion-duration:640ms}
+.topic-pill{transform:none;clip-path:inset(0 0 100% 0 round 28px);transition:clip-path var(--motion-duration) var(--motion-ease),opacity .4s var(--motion-ease)}
+.has-topic .topic-pill{clip-path:inset(0 0 0 0 round 28px)}
+.screen-home .home-location{transition:opacity .44s var(--motion-ease),transform .64s var(--motion-ease),visibility 0s}
+.has-topic .home-location{transition:opacity .44s var(--motion-ease),transform .64s var(--motion-ease),visibility 0s .44s}
+.scene{transition:opacity .64s var(--motion-ease),transform .9s var(--motion-ease)}
+.card-inner{opacity:0;transform:translateY(-10px);transition:opacity .4s var(--motion-ease),transform .52s var(--motion-ease)}
+.expanded>.card-panel>.card-inner{opacity:1;transform:none}
+.topic-card summary:after{transition:transform .52s var(--motion-ease)}
+.menu-item,.gallery-controls button,.scene-controls button{transition:transform .44s var(--motion-ease),opacity .44s var(--motion-ease)}
+.gallery-slide{transform:translateX(calc(var(--slide-direction,1) * 18px)) scale(1.025);transition:opacity .64s var(--motion-ease),transform .8s var(--motion-ease)}
+.gallery-slide.active{transform:translateX(0) scale(1)}
+@media(hover:hover){.gallery-controls button:hover,.scene-controls button:hover{transform:scale(1.08)}a:hover .action-arrow{translate:3px 0}.back-link:hover .action-arrow{translate:-3px 0}}
+.action-arrow{transition:translate .44s var(--motion-ease)}
+.gallery-controls button:active,.scene-controls button:active{transform:scale(.94)}
+@media(prefers-reduced-motion:reduce){.card-inner,.gallery-slide{transform:none!important}.topic-pill,.card-inner,.scene,.gallery-slide,.action-arrow{transition:none!important}}
